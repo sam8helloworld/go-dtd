@@ -23,4 +23,5 @@ const (
 	VerticalLine      = "|"
 	Plus              = "+"
 	Question          = "?"
+	Empty             = "EMPTY"
 )

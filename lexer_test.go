@@ -380,6 +380,45 @@ func TestElementLexer(t *testing.T) {
 			wantErr: nil,
 		},
 		{
+			name:  "成功ケース_子要素がEMPTY",
+			input: "<!ELEMENT person - O EMPTY>",
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    Element,
+					Literal: "ELEMENT",
+				},
+				{
+					Type:    Name,
+					Literal: "person",
+				},
+				{
+					Type:    TagNeed,
+					Literal: "-",
+				},
+				{
+					Type:    TagUnNeed,
+					Literal: "O",
+				},
+				{
+					Type:    Empty,
+					Literal: "EMPTY",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
+		{
 			name:    "ELEMENT要素名が間違っていてエラーが発生する",
 			input:   "<!ELEMINT person - O (name,age,license*）>",
 			want:    nil,
