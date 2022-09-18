@@ -83,7 +83,7 @@ func TestElementLexer(t *testing.T) {
 		},
 		{
 			name:    "ELEMENT要素名が間違っていてエラーが発生する",
-			input:   "<!ELEMINT person (name,age,license*）>",
+			input:   "<!ELEMINT person - O (name,age,license*）>",
 			want:    nil,
 			wantErr: ErrElementTokenize,
 		},
