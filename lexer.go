@@ -21,6 +21,7 @@ const (
 	TagUnNeedSymbol         = 'O'
 	AmpersandSymbol         = '&'
 	VerticalLineSymbol      = '|'
+	PlusSymbol              = '+'
 )
 
 type lexer struct {
@@ -91,6 +92,11 @@ func (l *lexer) Execute() ([]Token, error) {
 				Type:    VerticalLine,
 				Literal: string(ch),
 			})
+		case ch == PlusSymbol:
+			tokens = append(tokens, Token{
+				Type:    Plus,
+				Literal: string(ch),
+			})
 		case ch == TagNeedSymbol:
 			tokens = append(tokens, Token{
 				Type:    TagNeed,
@@ -131,7 +137,7 @@ func (l *lexer) nameTokenize() (*Token, error) {
 	name := string(l.ch)
 	for {
 		ch := l.peakChar()
-		if ch == WhiteSpaceSymbol || ch == CommaSymbol || ch == RightBracketSymbol || ch == AsteriskSymbol || ch == AmpersandSymbol || ch == VerticalLineSymbol {
+		if ch == WhiteSpaceSymbol || ch == CommaSymbol || ch == RightBracketSymbol || ch == AsteriskSymbol || ch == AmpersandSymbol || ch == VerticalLineSymbol || ch == PlusSymbol {
 			break
 		}
 		name += string(ch)

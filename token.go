@@ -21,4 +21,5 @@ const (
 	TagUnNeed         = "O"
 	Ampersand         = "&"
 	VerticalLine      = "|"
+	Plus              = "+"
 )
