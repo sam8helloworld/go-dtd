@@ -6,6 +6,8 @@ import (
 
 var ErrElementTokenize = errors.New("failed to element tokenize")
 var ErrEmptyTokenize = errors.New("failed to empty tokenize")
+var ErrAttListTokenize = errors.New("failed to attlist tokenize")
+var ErrDefaultValueTokenize = errors.New("failed to default value tokenize")
 var ErrTagNecessityTokenize = errors.New("failed to tag necessity tokenize")
 
 const (
@@ -14,6 +16,9 @@ const (
 	RightAngleBracketSymbol = '>'
 	ElementOrEmptySymbol    = 'E'
 	WhiteSpaceSymbol        = ' '
+	WhiteSpaceTabSymbol     = '\t'
+	WhiteSpaceCRSymbol      = '\r'
+	WhiteSpaceLFSymbol      = '\n'
 	LeftBracketSymbol       = '('
 	RightBracketSymbol      = ')'
 	CommaSymbol             = ','
@@ -25,6 +30,8 @@ const (
 	PlusSymbol              = '+'
 	QuestionSymbol          = '?'
 	MinusSymbol             = '-'
+	AttListSymbol           = 'A'
+	SharpSymbol             = '#'
 )
 
 type lexer struct {
@@ -73,8 +80,14 @@ func (l *lexer) Execute() ([]Token, error) {
 				}
 				tokens = append(tokens, *token)
 			}
-		case ch == WhiteSpaceSymbol:
+		case ch == WhiteSpaceSymbol || ch == WhiteSpaceTabSymbol || ch == WhiteSpaceCRSymbol || ch == WhiteSpaceLFSymbol:
 			continue
+		case ch == AttListSymbol:
+			token, err := l.attListTokenize()
+			if err != nil {
+				return nil, err
+			}
+			tokens = append(tokens, *token)
 		case ch == LeftBracketSymbol:
 			tokens = append(tokens, Token{
 				Type:    LeftBracket,
@@ -115,6 +128,12 @@ func (l *lexer) Execute() ([]Token, error) {
 				Type:    Minus,
 				Literal: string(ch),
 			})
+		case ch == SharpSymbol:
+			token, err := l.defaulValueTokenize()
+			if err != nil {
+				return nil, err
+			}
+			tokens = append(tokens, *token)
 		case ch == QuestionSymbol:
 			tokens = append(tokens, Token{
 				Type:    Question,
@@ -160,7 +179,7 @@ func (l *lexer) nameTokenize() (*Token, error) {
 	name := string(l.ch)
 	for {
 		ch := l.peakChar()
-		if ch == WhiteSpaceSymbol || ch == CommaSymbol || ch == RightBracketSymbol || ch == AsteriskSymbol || ch == AmpersandSymbol || ch == VerticalLineSymbol || ch == PlusSymbol || ch == QuestionSymbol {
+		if ch == WhiteSpaceSymbol || ch == WhiteSpaceTabSymbol || ch == WhiteSpaceCRSymbol || ch == WhiteSpaceLFSymbol || ch == CommaSymbol || ch == RightBracketSymbol || ch == AsteriskSymbol || ch == AmpersandSymbol || ch == VerticalLineSymbol || ch == PlusSymbol || ch == QuestionSymbol {
 			break
 		}
 		name += string(ch)
@@ -184,6 +203,55 @@ func (l *lexer) emptyTokenize() (*Token, error) {
 		}, nil
 	}
 	return nil, ErrEmptyTokenize
+}
+
+func (l *lexer) attListTokenize() (*Token, error) {
+	att := string(l.ch)
+	for i := 0; i < 6; i++ {
+		att += string(l.readChar())
+	}
+	if att == "ATTLIST" {
+		return &Token{
+			Type:    AttList,
+			Literal: att,
+		}, nil
+	}
+	return nil, ErrAttListTokenize
+}
+
+func (l *lexer) defaulValueTokenize() (*Token, error) {
+	switch l.peakChar() {
+	case 'I':
+		imp := string(l.readChar())
+		for i := 0; i < 6; i++ {
+			imp += string(l.readChar())
+		}
+		if imp == "IMPLIED" {
+			return &Token{
+				Type:    DefaultValueImplied,
+				Literal: "#IMPLIED",
+			}, nil
+		}
+		return nil, ErrDefaultValueTokenize
+	case 'R':
+		req := string(l.readChar())
+		for i := 0; i < 7; i++ {
+			req += string(l.readChar())
+		}
+		if req == "REQUIRED" {
+			return &Token{
+				Type:    DefaultValueRequired,
+				Literal: "#REQUIRED",
+			}, nil
+		}
+		return nil, ErrDefaultValueTokenize
+	case 'F':
+		// TODO: 値
+		return nil, ErrDefaultValueTokenize
+	default:
+		// TODO: 値
+		return nil, ErrDefaultValueTokenize
+	}
 }
 
 func (l *lexer) readChar() byte {
