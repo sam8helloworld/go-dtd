@@ -11,6 +11,11 @@ const (
 	LeftAngleBracketSymbol  = '<'
 	RightAngleBracketSymbol = '>'
 	ElementSymbol           = 'E'
+	WhiteSpaceSymbol        = ' '
+	LeftBracketSymbol       = '('
+	RightBracketSymbol      = ')'
+	CommaSymbol             = ','
+	AsteriskSymbol          = '*'
 )
 
 type lexer struct {
@@ -27,29 +32,56 @@ func NewLexer(input string) *lexer {
 func (l *lexer) Execute() ([]Token, error) {
 	tokens := []Token{}
 	for ch := l.readChar(); l.readPosition <= len(l.input); ch = l.readChar() {
-		switch ch {
-		case LeftAngleBracketSymbol:
+		switch {
+		case ch == LeftAngleBracketSymbol:
 			tokens = append(tokens, Token{
 				Type:    TokenType(LeftAngleBracket),
 				Literal: string(ch),
 			})
-		case RightAngleBracketSymbol:
+		case ch == RightAngleBracketSymbol:
 			tokens = append(tokens, Token{
 				Type:    TokenType(RightAngleBracket),
 				Literal: string(ch),
 			})
-		case ExclamationSymbol:
+		case ch == ExclamationSymbol:
 			tokens = append(tokens, Token{
 				Type:    TokenType(Exclamation),
 				Literal: string(ch),
 			})
-		case ElementSymbol:
+		case ch == ElementSymbol:
 			token, err := l.elementTokenize()
 			if err != nil {
 				return nil, err
 			}
 			tokens = append(tokens, *token)
+		case ch == WhiteSpaceSymbol:
+			continue
+		case ch == LeftBracketSymbol:
+			tokens = append(tokens, Token{
+				Type:    LeftBracket,
+				Literal: string(ch),
+			})
+		case ch == RightBracketSymbol:
+			tokens = append(tokens, Token{
+				Type:    RightBracket,
+				Literal: string(ch),
+			})
+		case ch == CommaSymbol:
+			tokens = append(tokens, Token{
+				Type:    Comma,
+				Literal: string(ch),
+			})
+		case ch == AsteriskSymbol:
+			tokens = append(tokens, Token{
+				Type:    Asterisk,
+				Literal: string(ch),
+			})
 		default:
+			token, err := l.nameTokenize()
+			if err != nil {
+				return nil, err
+			}
+			tokens = append(tokens, *token)
 			continue
 		}
 	}
@@ -70,6 +102,22 @@ func (l *lexer) elementTokenize() (*Token, error) {
 	return nil, ErrElementTokenize
 }
 
+func (l *lexer) nameTokenize() (*Token, error) {
+	name := string(l.ch)
+	for {
+		ch := l.peakChar()
+		if ch == WhiteSpaceSymbol || ch == CommaSymbol || ch == RightBracketSymbol || ch == AsteriskSymbol {
+			break
+		}
+		name += string(ch)
+		l.readChar()
+	}
+	return &Token{
+		Type:    Name,
+		Literal: name,
+	}, nil
+}
+
 func (l *lexer) readChar() byte {
 	if l.readPosition >= len(l.input) {
 		l.ch = 0
@@ -79,4 +127,13 @@ func (l *lexer) readChar() byte {
 	l.position = l.readPosition
 	l.readPosition += 1
 	return l.ch
+}
+
+func (l *lexer) peakChar() byte {
+	// 入力が終わったらchを0に
+	if l.readPosition >= len(l.input) {
+		return 0
+	} else {
+		return l.input[l.readPosition]
+	}
 }
