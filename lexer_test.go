@@ -16,7 +16,7 @@ func TestElementLexer(t *testing.T) {
 	}{
 		{
 			name:  "成功",
-			input: "<!ELEMENT person (name,age,license*)>",
+			input: "<!ELEMENT person - O (name,age,license*)>",
 			want: []Token{
 				{
 					Type:    LeftAngleBracket,
@@ -33,6 +33,14 @@ func TestElementLexer(t *testing.T) {
 				{
 					Type:    Name,
 					Literal: "person",
+				},
+				{
+					Type:    TagNeed,
+					Literal: "-",
+				},
+				{
+					Type:    TagUnNeed,
+					Literal: "O",
 				},
 				{
 					Type:    LeftBracket,
