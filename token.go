@@ -19,4 +19,5 @@ const (
 	Asterisk          = "*"
 	TagNeed           = "-"
 	TagUnNeed         = "O"
+	Ampersand         = "&"
 )
