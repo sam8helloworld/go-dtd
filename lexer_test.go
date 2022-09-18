@@ -16,7 +16,7 @@ func TestElementLexer(t *testing.T) {
 	}{
 		{
 			name:  "成功",
-			input: "<!ELEMENT person （name,age,license*）>",
+			input: "<!ELEMENT person (name,age,license*)>",
 			want: []Token{
 				{
 					Type:    LeftAngleBracket,
@@ -31,6 +31,42 @@ func TestElementLexer(t *testing.T) {
 					Literal: "ELEMENT",
 				},
 				{
+					Type:    Name,
+					Literal: "person",
+				},
+				{
+					Type:    LeftBracket,
+					Literal: "(",
+				},
+				{
+					Type:    Name,
+					Literal: "name",
+				},
+				{
+					Type:    Comma,
+					Literal: ",",
+				},
+				{
+					Type:    Name,
+					Literal: "age",
+				},
+				{
+					Type:    Comma,
+					Literal: ",",
+				},
+				{
+					Type:    Name,
+					Literal: "license",
+				},
+				{
+					Type:    Asterisk,
+					Literal: "*",
+				},
+				{
+					Type:    RightBracket,
+					Literal: ")",
+				},
+				{
 					Type:    RightAngleBracket,
 					Literal: ">",
 				},
@@ -39,7 +75,7 @@ func TestElementLexer(t *testing.T) {
 		},
 		{
 			name:    "ELEMENT要素名が間違っていてエラーが発生する",
-			input:   "<!ELEMINT person （name,age,license*）>",
+			input:   "<!ELEMINT person (name,age,license*）>",
 			want:    nil,
 			wantErr: ErrElementTokenize,
 		},
