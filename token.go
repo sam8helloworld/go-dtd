@@ -12,4 +12,9 @@ const (
 	RightAngleBracket = ">"
 	Exclamation       = "!"
 	Element           = "ELEMENT"
+	Name              = "Name"
+	LeftBracket       = "("
+	RightBracket      = ")"
+	Comma             = ","
+	Asterisk          = "*"
 )
