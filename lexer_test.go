@@ -15,8 +15,55 @@ func TestElementLexer(t *testing.T) {
 		wantErr error
 	}{
 		{
-			name:  "成功",
-			input: "<!ELEMENT person - O (name,age,license*)>",
+			name:  "成功ケース_子要素の数が1つ",
+			input: "<!ELEMENT person - O (name)>",
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    Element,
+					Literal: "ELEMENT",
+				},
+				{
+					Type:    Name,
+					Literal: "person",
+				},
+				{
+					Type:    TagNeed,
+					Literal: "-",
+				},
+				{
+					Type:    TagUnNeed,
+					Literal: "O",
+				},
+				{
+					Type:    LeftBracket,
+					Literal: "(",
+				},
+				{
+					Type:    Name,
+					Literal: "name",
+				},
+				{
+					Type:    RightBracket,
+					Literal: ")",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name:  "成功ケース_子要素の数が2つ以上かつカンマで区切り",
+			input: "<!ELEMENT person - O (name,age)>",
 			want: []Token{
 				{
 					Type:    LeftAngleBracket,
@@ -59,20 +106,114 @@ func TestElementLexer(t *testing.T) {
 					Literal: "age",
 				},
 				{
-					Type:    Comma,
-					Literal: ",",
+					Type:    RightBracket,
+					Literal: ")",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name:  "成功ケース_子要素の数が2つ以上かつアンパサンドで区切り",
+			input: "<!ELEMENT person - O (name&age)>",
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    Element,
+					Literal: "ELEMENT",
 				},
 				{
 					Type:    Name,
-					Literal: "license",
+					Literal: "person",
 				},
 				{
-					Type:    Asterisk,
-					Literal: "*",
+					Type:    TagNeed,
+					Literal: "-",
+				},
+				{
+					Type:    TagUnNeed,
+					Literal: "O",
+				},
+				{
+					Type:    LeftBracket,
+					Literal: "(",
+				},
+				{
+					Type:    Name,
+					Literal: "name",
+				},
+				{
+					Type:    Ampersand,
+					Literal: "&",
+				},
+				{
+					Type:    Name,
+					Literal: "age",
 				},
 				{
 					Type:    RightBracket,
 					Literal: ")",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name:  "成功ケース_子要素の数が1つでアスタリスクで修飾",
+			input: "<!ELEMENT person - O (name)*>",
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    Element,
+					Literal: "ELEMENT",
+				},
+				{
+					Type:    Name,
+					Literal: "person",
+				},
+				{
+					Type:    TagNeed,
+					Literal: "-",
+				},
+				{
+					Type:    TagUnNeed,
+					Literal: "O",
+				},
+				{
+					Type:    LeftBracket,
+					Literal: "(",
+				},
+				{
+					Type:    Name,
+					Literal: "name",
+				},
+				{
+					Type:    RightBracket,
+					Literal: ")",
+				},
+				{
+					Type:    Asterisk,
+					Literal: "*",
 				},
 				{
 					Type:    RightAngleBracket,
