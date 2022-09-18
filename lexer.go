@@ -24,6 +24,7 @@ const (
 	VerticalLineSymbol      = '|'
 	PlusSymbol              = '+'
 	QuestionSymbol          = '?'
+	MinusSymbol             = '-'
 )
 
 type lexer struct {
@@ -107,6 +108,11 @@ func (l *lexer) Execute() ([]Token, error) {
 		case ch == PlusSymbol:
 			tokens = append(tokens, Token{
 				Type:    Plus,
+				Literal: string(ch),
+			})
+		case ch == MinusSymbol:
+			tokens = append(tokens, Token{
+				Type:    Minus,
 				Literal: string(ch),
 			})
 		case ch == QuestionSymbol:

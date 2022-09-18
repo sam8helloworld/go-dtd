@@ -24,4 +24,5 @@ const (
 	Plus              = "+"
 	Question          = "?"
 	Empty             = "EMPTY"
+	Minus             = "-"
 )
