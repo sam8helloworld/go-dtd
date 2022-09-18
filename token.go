@@ -17,4 +17,6 @@ const (
 	RightBracket      = ")"
 	Comma             = ","
 	Asterisk          = "*"
+	TagNeed           = "-"
+	TagUnNeed         = "O"
 )

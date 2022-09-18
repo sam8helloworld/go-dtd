@@ -1,5 +1,5 @@
 <!-- person要素がルート要素となる　-->
-<!ELEMENT person （name,age,license*）>
-<!ELEMENT name (#PCDATA)>
-<!ELEMENT age (#PCDATA)>
-<!ELEMENT license (#PCDATA)>
+<!ELEMENT person - - (name,age,license*）>
+<!ELEMENT name - - (#PCDATA)>
+<!ELEMENT age - - (#PCDATA)>
+<!ELEMENT license - - (#PCDATA)>

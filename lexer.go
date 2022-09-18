@@ -5,6 +5,7 @@ import (
 )
 
 var ErrElementTokenize = errors.New("failed to element tokenize")
+var ErrTagNecessityTokenize = errors.New("failed to tag necessity tokenize")
 
 const (
 	ExclamationSymbol       = '!'
@@ -16,6 +17,8 @@ const (
 	RightBracketSymbol      = ')'
 	CommaSymbol             = ','
 	AsteriskSymbol          = '*'
+	TagNeedSymbol           = '-'
+	TagUnNeedSymbol         = 'O'
 )
 
 type lexer struct {
@@ -74,6 +77,16 @@ func (l *lexer) Execute() ([]Token, error) {
 		case ch == AsteriskSymbol:
 			tokens = append(tokens, Token{
 				Type:    Asterisk,
+				Literal: string(ch),
+			})
+		case ch == TagNeedSymbol:
+			tokens = append(tokens, Token{
+				Type:    TagNeed,
+				Literal: string(ch),
+			})
+		case ch == TagUnNeedSymbol:
+			tokens = append(tokens, Token{
+				Type:    TagUnNeed,
 				Literal: string(ch),
 			})
 		default:
