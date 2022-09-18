@@ -5,13 +5,14 @@ import (
 )
 
 var ErrElementTokenize = errors.New("failed to element tokenize")
+var ErrEmptyTokenize = errors.New("failed to empty tokenize")
 var ErrTagNecessityTokenize = errors.New("failed to tag necessity tokenize")
 
 const (
 	ExclamationSymbol       = '!'
 	LeftAngleBracketSymbol  = '<'
 	RightAngleBracketSymbol = '>'
-	ElementSymbol           = 'E'
+	ElementOrEmptySymbol    = 'E'
 	WhiteSpaceSymbol        = ' '
 	LeftBracketSymbol       = '('
 	RightBracketSymbol      = ')'
@@ -19,6 +20,11 @@ const (
 	AsteriskSymbol          = '*'
 	TagNeedSymbol           = '-'
 	TagUnNeedSymbol         = 'O'
+	AmpersandSymbol         = '&'
+	VerticalLineSymbol      = '|'
+	PlusSymbol              = '+'
+	QuestionSymbol          = '?'
+	MinusSymbol             = '-'
 )
 
 type lexer struct {
@@ -51,12 +57,22 @@ func (l *lexer) Execute() ([]Token, error) {
 				Type:    TokenType(Exclamation),
 				Literal: string(ch),
 			})
-		case ch == ElementSymbol:
-			token, err := l.elementTokenize()
-			if err != nil {
-				return nil, err
+		case ch == ElementOrEmptySymbol:
+			nextChar := l.peakChar()
+			if nextChar == 'L' {
+				token, err := l.elementTokenize()
+				if err != nil {
+					return nil, err
+				}
+				tokens = append(tokens, *token)
 			}
-			tokens = append(tokens, *token)
+			if nextChar == 'M' {
+				token, err := l.emptyTokenize()
+				if err != nil {
+					return nil, err
+				}
+				tokens = append(tokens, *token)
+			}
 		case ch == WhiteSpaceSymbol:
 			continue
 		case ch == LeftBracketSymbol:
@@ -74,9 +90,34 @@ func (l *lexer) Execute() ([]Token, error) {
 				Type:    Comma,
 				Literal: string(ch),
 			})
+		case ch == AmpersandSymbol:
+			tokens = append(tokens, Token{
+				Type:    Ampersand,
+				Literal: string(ch),
+			})
 		case ch == AsteriskSymbol:
 			tokens = append(tokens, Token{
 				Type:    Asterisk,
+				Literal: string(ch),
+			})
+		case ch == VerticalLineSymbol:
+			tokens = append(tokens, Token{
+				Type:    VerticalLine,
+				Literal: string(ch),
+			})
+		case ch == PlusSymbol:
+			tokens = append(tokens, Token{
+				Type:    Plus,
+				Literal: string(ch),
+			})
+		case ch == MinusSymbol:
+			tokens = append(tokens, Token{
+				Type:    Minus,
+				Literal: string(ch),
+			})
+		case ch == QuestionSymbol:
+			tokens = append(tokens, Token{
+				Type:    Question,
 				Literal: string(ch),
 			})
 		case ch == TagNeedSymbol:
@@ -119,7 +160,7 @@ func (l *lexer) nameTokenize() (*Token, error) {
 	name := string(l.ch)
 	for {
 		ch := l.peakChar()
-		if ch == WhiteSpaceSymbol || ch == CommaSymbol || ch == RightBracketSymbol || ch == AsteriskSymbol {
+		if ch == WhiteSpaceSymbol || ch == CommaSymbol || ch == RightBracketSymbol || ch == AsteriskSymbol || ch == AmpersandSymbol || ch == VerticalLineSymbol || ch == PlusSymbol || ch == QuestionSymbol {
 			break
 		}
 		name += string(ch)
@@ -129,6 +170,20 @@ func (l *lexer) nameTokenize() (*Token, error) {
 		Type:    Name,
 		Literal: name,
 	}, nil
+}
+
+func (l *lexer) emptyTokenize() (*Token, error) {
+	em := string(l.ch)
+	for i := 0; i < 4; i++ {
+		em += string(l.readChar())
+	}
+	if em == "EMPTY" {
+		return &Token{
+			Type:    Empty,
+			Literal: em,
+		}, nil
+	}
+	return nil, ErrEmptyTokenize
 }
 
 func (l *lexer) readChar() byte {

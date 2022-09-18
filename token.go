@@ -19,4 +19,10 @@ const (
 	Asterisk          = "*"
 	TagNeed           = "-"
 	TagUnNeed         = "O"
+	Ampersand         = "&"
+	VerticalLine      = "|"
+	Plus              = "+"
+	Question          = "?"
+	Empty             = "EMPTY"
+	Minus             = "-"
 )

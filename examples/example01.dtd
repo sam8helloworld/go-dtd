@@ -3,3 +3,15 @@
 <!ELEMENT name - - (#PCDATA)>
 <!ELEMENT age - - (#PCDATA)>
 <!ELEMENT license - - (#PCDATA)>
+
+<!-- 子要素のパターン -->
+<!ELEMENT person - - EMPTY >
+<!ELEMENT person - - (name) >
+<!ELEMENT person - - (name, age) >
+<!ELEMENT person - - (name & age) >
+<!ELEMENT person - - (name | age) >
+<!ELEMENT person - - (name)* >
+<!ELEMENT person - - (name)+ >
+<!ELEMENT person - - (name)? >
+<!ELEMENT person - - +(name) >
+<!ELEMENT person - - -(name) >
