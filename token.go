@@ -22,4 +22,5 @@ const (
 	Ampersand         = "&"
 	VerticalLine      = "|"
 	Plus              = "+"
+	Question          = "?"
 )

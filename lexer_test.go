@@ -278,7 +278,7 @@ func TestElementLexer(t *testing.T) {
 			wantErr: nil,
 		},
 		{
-			name:  "成功ケース_子要素の数が1つかつプラスで区切り",
+			name:  "成功ケース_子要素の数が1つかつプラスで装飾",
 			input: "<!ELEMENT person - O (name)+>",
 			want: []Token{
 				{
@@ -320,6 +320,57 @@ func TestElementLexer(t *testing.T) {
 				{
 					Type:    Plus,
 					Literal: "+",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name:  "成功ケース_子要素の数が1つかつはてなで装飾",
+			input: "<!ELEMENT person - O (name)?>",
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    Element,
+					Literal: "ELEMENT",
+				},
+				{
+					Type:    Name,
+					Literal: "person",
+				},
+				{
+					Type:    TagNeed,
+					Literal: "-",
+				},
+				{
+					Type:    TagUnNeed,
+					Literal: "O",
+				},
+				{
+					Type:    LeftBracket,
+					Literal: "(",
+				},
+				{
+					Type:    Name,
+					Literal: "name",
+				},
+				{
+					Type:    RightBracket,
+					Literal: ")",
+				},
+				{
+					Type:    Question,
+					Literal: "?",
 				},
 				{
 					Type:    RightAngleBracket,
