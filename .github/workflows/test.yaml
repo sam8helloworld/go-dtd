@@ -1,0 +1,42 @@
+name: Test
+on:
+  workflow_dispatch:
+  push:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      TZ: Asia/Tokyo
+      GO111MODULE: on
+      GOCACHE: /tmp/go/cache
+      TEST_RESULTS: /tmp/test-results
+    steps:
+      - uses: actions/checkout@v2
+      - name: set up go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17
+      - name: Cache
+        uses: actions/cache@v2.1.0
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: install-gotools
+        run: |
+          go install gotest.tools/gotestsum@latest
+      - name: mod download into vendor
+        run: |
+          go mod vendor
+      - name: build
+        run: |
+          mkdir -p $GOCACHE
+          go build -v
+      - name: test
+        run: |
+          mkdir ${TEST_RESULTS}
+          touch ${TEST_RESULTS}/unit-tests.xml
+          gotestsum --junitfile ${TEST_RESULTS}/unit-tests.xml -- -p 6 -race -cover ./...
