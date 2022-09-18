@@ -223,6 +223,61 @@ func TestElementLexer(t *testing.T) {
 			wantErr: nil,
 		},
 		{
+			name:  "成功ケース_子要素の数が2つ以上かつ縦線で区切り",
+			input: "<!ELEMENT person - O (name|age)>",
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    Element,
+					Literal: "ELEMENT",
+				},
+				{
+					Type:    Name,
+					Literal: "person",
+				},
+				{
+					Type:    TagNeed,
+					Literal: "-",
+				},
+				{
+					Type:    TagUnNeed,
+					Literal: "O",
+				},
+				{
+					Type:    LeftBracket,
+					Literal: "(",
+				},
+				{
+					Type:    Name,
+					Literal: "name",
+				},
+				{
+					Type:    VerticalLine,
+					Literal: "|",
+				},
+				{
+					Type:    Name,
+					Literal: "age",
+				},
+				{
+					Type:    RightBracket,
+					Literal: ")",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
+		{
 			name:    "ELEMENT要素名が間違っていてエラーが発生する",
 			input:   "<!ELEMINT person - O (name,age,license*）>",
 			want:    nil,
