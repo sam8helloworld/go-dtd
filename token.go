@@ -30,4 +30,6 @@ const (
 	DefaultValueRequired = "#REQUIRED"
 	DefaultValueFixed    = "#FIXED"
 	String               = "String"
+	Entity               = "ENTITY"
+	Percent              = "%"
 )
