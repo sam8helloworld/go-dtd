@@ -563,5 +563,212 @@ func TestElementLexer(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestAttListLexer(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   string
+		want    []Token
+		wantErr error
+	}{
+		{
+			name: "成功ケース_属性の数が1つ",
+			input: `
+<!ATTLIST HTML
+lang    NAME
+>
+			`,
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    AttList,
+					Literal: "ATTLIST",
+				},
+				{
+					Type:    Name,
+					Literal: "HTML",
+				},
+				{
+					Type:    Name,
+					Literal: "lang",
+				},
+				{
+					Type:    Name,
+					Literal: "NAME",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "成功ケース_属性の数が1つで属性の説明付き",
+			input: `
+<!ATTLIST HTML
+lang    NAME      #IMPLIED
+>
+			`,
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    AttList,
+					Literal: "ATTLIST",
+				},
+				{
+					Type:    Name,
+					Literal: "HTML",
+				},
+				{
+					Type:    Name,
+					Literal: "lang",
+				},
+				{
+					Type:    Name,
+					Literal: "NAME",
+				},
+				{
+					Type:    DefaultValueImplied,
+					Literal: "#IMPLIED",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "成功ケース_属性の数が1つで属性の説明付き(FIXED)",
+			input: `
+<!ATTLIST HTML
+version CDATA     #FIXED   '-//W3C//DTD HTML 4.01 Transitional//EN'
+>
+			`,
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    AttList,
+					Literal: "ATTLIST",
+				},
+				{
+					Type:    Name,
+					Literal: "HTML",
+				},
+				{
+					Type:    Name,
+					Literal: "version",
+				},
+				{
+					Type:    Name,
+					Literal: "CDATA",
+				},
+				{
+					Type:    DefaultValueFixed,
+					Literal: "#FIXED",
+				},
+				{
+					Type:    String,
+					Literal: "-//W3C//DTD HTML 4.01 Transitional//EN",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
+		{
+			name: "成功ケース_属性の数が2つ",
+			input: `
+<!ATTLIST HTML
+lang    NAME      #IMPLIED
+lang    NAME      #IMPLIED
+>
+			`,
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    AttList,
+					Literal: "ATTLIST",
+				},
+				{
+					Type:    Name,
+					Literal: "HTML",
+				},
+				{
+					Type:    Name,
+					Literal: "lang",
+				},
+				{
+					Type:    Name,
+					Literal: "NAME",
+				},
+				{
+					Type:    DefaultValueImplied,
+					Literal: "#IMPLIED",
+				},
+				{
+					Type:    Name,
+					Literal: "lang",
+				},
+				{
+					Type:    Name,
+					Literal: "NAME",
+				},
+				{
+					Type:    DefaultValueImplied,
+					Literal: "#IMPLIED",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sut := NewLexer(tt.input)
+			got, err := sut.Execute()
+			if err != nil && !errors.Is(err, tt.wantErr) {
+				t.Errorf("error mismatch want: %v, but got %v", tt.wantErr, err)
+			}
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("mismatch (-got +want):\n%s", diff)
+			}
+		})
+	}
 
 }
