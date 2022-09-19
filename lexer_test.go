@@ -654,6 +654,62 @@ lang    NAME      #IMPLIED
 			},
 			wantErr: nil,
 		},
+		{
+			name: "成功ケース_属性の数が2つ",
+			input: `
+<!ATTLIST HTML
+lang    NAME      #IMPLIED
+lang    NAME      #IMPLIED
+>
+			`,
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    AttList,
+					Literal: "ATTLIST",
+				},
+				{
+					Type:    Name,
+					Literal: "HTML",
+				},
+				{
+					Type:    Name,
+					Literal: "lang",
+				},
+				{
+					Type:    Name,
+					Literal: "NAME",
+				},
+				{
+					Type:    DefaultValueImplied,
+					Literal: "#IMPLIED",
+				},
+				{
+					Type:    Name,
+					Literal: "lang",
+				},
+				{
+					Type:    Name,
+					Literal: "NAME",
+				},
+				{
+					Type:    DefaultValueImplied,
+					Literal: "#IMPLIED",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
