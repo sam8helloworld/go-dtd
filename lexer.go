@@ -10,31 +10,33 @@ var ErrAttListTokenize = errors.New("failed to attlist tokenize")
 var ErrDefaultValueTokenize = errors.New("failed to default value tokenize")
 var ErrStringTokenize = errors.New("failed to string tokenize")
 var ErrTagNecessityTokenize = errors.New("failed to tag necessity tokenize")
+var ErrEntityTokenize = errors.New("failed to entity tokenize")
 
 const (
-	ExclamationSymbol       = '!'
-	LeftAngleBracketSymbol  = '<'
-	RightAngleBracketSymbol = '>'
-	ElementOrEmptySymbol    = 'E'
-	WhiteSpaceSymbol        = ' '
-	WhiteSpaceTabSymbol     = '\t'
-	WhiteSpaceCRSymbol      = '\r'
-	WhiteSpaceLFSymbol      = '\n'
-	LeftBracketSymbol       = '('
-	RightBracketSymbol      = ')'
-	CommaSymbol             = ','
-	AsteriskSymbol          = '*'
-	TagNeedSymbol           = '-'
-	TagUnNeedSymbol         = 'O'
-	AmpersandSymbol         = '&'
-	VerticalLineSymbol      = '|'
-	PlusSymbol              = '+'
-	QuestionSymbol          = '?'
-	MinusSymbol             = '-'
-	AttListSymbol           = 'A'
-	SharpSymbol             = '#'
-	QuoteSymbol             = '\''
-	DoubleQuoteSymbol       = '"'
+	ExclamationSymbol            = '!'
+	LeftAngleBracketSymbol       = '<'
+	RightAngleBracketSymbol      = '>'
+	ElementOrEmptyorEntitySymbol = 'E'
+	WhiteSpaceSymbol             = ' '
+	WhiteSpaceTabSymbol          = '\t'
+	WhiteSpaceCRSymbol           = '\r'
+	WhiteSpaceLFSymbol           = '\n'
+	LeftBracketSymbol            = '('
+	RightBracketSymbol           = ')'
+	CommaSymbol                  = ','
+	AsteriskSymbol               = '*'
+	TagNeedSymbol                = '-'
+	TagUnNeedSymbol              = 'O'
+	AmpersandSymbol              = '&'
+	VerticalLineSymbol           = '|'
+	PlusSymbol                   = '+'
+	QuestionSymbol               = '?'
+	MinusSymbol                  = '-'
+	AttListSymbol                = 'A'
+	SharpSymbol                  = '#'
+	QuoteSymbol                  = '\''
+	DoubleQuoteSymbol            = '"'
+	PercentSymbol                = '%'
 )
 
 type lexer struct {
@@ -67,7 +69,7 @@ func (l *lexer) Execute() ([]Token, error) {
 				Type:    TokenType(Exclamation),
 				Literal: string(ch),
 			})
-		case ch == ElementOrEmptySymbol:
+		case ch == ElementOrEmptyorEntitySymbol:
 			nextChar := l.peakChar()
 			if nextChar == 'L' {
 				token, err := l.elementTokenize()
@@ -78,6 +80,13 @@ func (l *lexer) Execute() ([]Token, error) {
 			}
 			if nextChar == 'M' {
 				token, err := l.emptyTokenize()
+				if err != nil {
+					return nil, err
+				}
+				tokens = append(tokens, *token)
+			}
+			if nextChar == 'N' {
+				token, err := l.entityTokenize()
 				if err != nil {
 					return nil, err
 				}
@@ -156,6 +165,11 @@ func (l *lexer) Execute() ([]Token, error) {
 		case ch == TagUnNeedSymbol:
 			tokens = append(tokens, Token{
 				Type:    TagUnNeed,
+				Literal: string(ch),
+			})
+		case ch == PercentSymbol:
+			tokens = append(tokens, Token{
+				Type:    Percent,
 				Literal: string(ch),
 			})
 		default:
@@ -285,6 +299,20 @@ func (l *lexer) stringTokenize(quoteSymbol byte) (*Token, error) {
 		str += string(ch)
 	}
 	return nil, ErrStringTokenize
+}
+
+func (l *lexer) entityTokenize() (*Token, error) {
+	en := string(l.ch)
+	for i := 0; i < 5; i++ {
+		en += string(l.readChar())
+	}
+	if en == "ENTITY" {
+		return &Token{
+			Type:    Entity,
+			Literal: en,
+		}, nil
+	}
+	return nil, ErrEntityTokenize
 }
 
 func (l *lexer) readChar() byte {

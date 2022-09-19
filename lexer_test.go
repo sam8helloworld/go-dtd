@@ -770,5 +770,60 @@ lang    NAME      #IMPLIED
 			}
 		})
 	}
+}
 
+func TestEntityLexer(t *testing.T) {
+	tests := []struct {
+		name    string
+		input   string
+		want    []Token
+		wantErr error
+	}{
+		{
+			name:  "成功ケース_内容が1つ",
+			input: `<!ENTITY % html.content "HEAD, BODY">`,
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    Entity,
+					Literal: "ENTITY",
+				},
+				{
+					Type:    Percent,
+					Literal: "%",
+				},
+				{
+					Type:    Name,
+					Literal: "html.content",
+				},
+				{
+					Type:    String,
+					Literal: "HEAD, BODY",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sut := NewLexer(tt.input)
+			got, err := sut.Execute()
+			if err != nil && !errors.Is(err, tt.wantErr) {
+				t.Errorf("error mismatch want: %v, but got %v", tt.wantErr, err)
+			}
+			if diff := cmp.Diff(got, tt.want); diff != "" {
+				t.Errorf("mismatch (-got +want):\n%s", diff)
+			}
+		})
+	}
 }
