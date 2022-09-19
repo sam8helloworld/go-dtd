@@ -29,4 +29,5 @@ const (
 	DefaultValueImplied  = "#IMPLIED"
 	DefaultValueRequired = "#REQUIRED"
 	DefaultValueFixed    = "#FIXED"
+	String               = "String"
 )

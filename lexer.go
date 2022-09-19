@@ -8,6 +8,7 @@ var ErrElementTokenize = errors.New("failed to element tokenize")
 var ErrEmptyTokenize = errors.New("failed to empty tokenize")
 var ErrAttListTokenize = errors.New("failed to attlist tokenize")
 var ErrDefaultValueTokenize = errors.New("failed to default value tokenize")
+var ErrStringTokenize = errors.New("failed to string tokenize")
 var ErrTagNecessityTokenize = errors.New("failed to tag necessity tokenize")
 
 const (
@@ -32,6 +33,8 @@ const (
 	MinusSymbol             = '-'
 	AttListSymbol           = 'A'
 	SharpSymbol             = '#'
+	QuoteSymbol             = '\''
+	DoubleQuoteSymbol       = '"'
 )
 
 type lexer struct {
@@ -128,6 +131,12 @@ func (l *lexer) Execute() ([]Token, error) {
 				Type:    Minus,
 				Literal: string(ch),
 			})
+		case ch == QuoteSymbol || ch == DoubleQuoteSymbol:
+			token, err := l.stringTokenize(ch)
+			if err != nil {
+				return nil, err
+			}
+			tokens = append(tokens, *token)
 		case ch == SharpSymbol:
 			token, err := l.defaulValueTokenize()
 			if err != nil {
@@ -246,12 +255,36 @@ func (l *lexer) defaulValueTokenize() (*Token, error) {
 		}
 		return nil, ErrDefaultValueTokenize
 	case 'F':
-		// TODO: 値
+		fix := string(l.readChar())
+		for i := 0; i < 4; i++ {
+			fix += string(l.readChar())
+		}
+		if fix == "FIXED" {
+			return &Token{
+				Type:    DefaultValueFixed,
+				Literal: "#FIXED",
+			}, nil
+		}
 		return nil, ErrDefaultValueTokenize
 	default:
-		// TODO: 値
 		return nil, ErrDefaultValueTokenize
 	}
+}
+
+func (l *lexer) stringTokenize(quoteSymbol byte) (*Token, error) {
+	str := ""
+	for ch := l.readChar(); ch != 0; ch = l.readChar() {
+		switch ch {
+		case quoteSymbol:
+			return &Token{
+				Type:    String,
+				Literal: str,
+			}, nil
+		default:
+		}
+		str += string(ch)
+	}
+	return nil, ErrStringTokenize
 }
 
 func (l *lexer) readChar() byte {

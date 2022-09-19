@@ -655,6 +655,53 @@ lang    NAME      #IMPLIED
 			wantErr: nil,
 		},
 		{
+			name: "成功ケース_属性の数が1つで属性の説明付き(FIXED)",
+			input: `
+<!ATTLIST HTML
+version CDATA     #FIXED   '-//W3C//DTD HTML 4.01 Transitional//EN'
+>
+			`,
+			want: []Token{
+				{
+					Type:    LeftAngleBracket,
+					Literal: "<",
+				},
+				{
+					Type:    Exclamation,
+					Literal: "!",
+				},
+				{
+					Type:    AttList,
+					Literal: "ATTLIST",
+				},
+				{
+					Type:    Name,
+					Literal: "HTML",
+				},
+				{
+					Type:    Name,
+					Literal: "version",
+				},
+				{
+					Type:    Name,
+					Literal: "CDATA",
+				},
+				{
+					Type:    DefaultValueFixed,
+					Literal: "#FIXED",
+				},
+				{
+					Type:    String,
+					Literal: "-//W3C//DTD HTML 4.01 Transitional//EN",
+				},
+				{
+					Type:    RightAngleBracket,
+					Literal: ">",
+				},
+			},
+			wantErr: nil,
+		},
+		{
 			name: "成功ケース_属性の数が2つ",
 			input: `
 <!ATTLIST HTML
